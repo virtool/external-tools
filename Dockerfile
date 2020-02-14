@@ -1,5 +1,5 @@
 # Debian builds of HMMER and Skewer.
-FROM debian:jessie as debian
+FROM debian:stretch as debian
 WORKDIR /build
 RUN apt-get update && apt-get install -y build-essential wget
 RUN wget http://eddylab.org/software/hmmer/hmmer-3.2.1.tar.gz && \
@@ -36,7 +36,7 @@ RUN wget https://github.com/ablab/spades/releases/download/v3.11.0/SPAdes-3.11.0
     mv SPAdes-3.11.0-Linux spades
 
 # Build
-FROM python:3.6-jessie
+FROM python:3.7-stretch
 COPY --from=debian /build/hmmer /opt/hmmer
 COPY --from=debian /build/skewer /usr/local/bin/
 COPY --from=fastqc /build/FastQC /opt/fastqc
