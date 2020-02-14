@@ -1,8 +1,14 @@
 # Debian builds of HMMER and Skewer.
 FROM debian:stretch as debian
 WORKDIR /build
-RUN apt-get update && apt-get install -y build-essential wget
-RUN wget http://eddylab.org/software/hmmer/hmmer-3.2.1.tar.gz && \
+RUN apt-get update && apt-get install -y build-essential wget bioperl
+RUN wget https://bitbucket.org/wenchen_aafc/aodp_v2.0_release/raw/5fcd5d2dfde61cd87ad3c63b8c92babd281fc0dc/aodp-2.5.0.1.tar.gz && \
+    tar -xvf aodp-2.5.0.1.tar.gz && \
+    cd aodp-2.5.0.1 && \
+    ./configure && \
+    make && \
+    mv b/aodp /build && \
+    wget http://eddylab.org/software/hmmer/hmmer-3.2.1.tar.gz && \
     tar -xf hmmer-3.2.1.tar.gz && \
     cd hmmer-3.2.1 && \
     ./configure --prefix /build/hmmer && \
@@ -37,6 +43,7 @@ RUN wget https://github.com/ablab/spades/releases/download/v3.11.0/SPAdes-3.11.0
 
 # Build
 FROM python:3.7-stretch
+COPY --from=debian /build/aodp /usr/local/bin/
 COPY --from=debian /build/hmmer /opt/hmmer
 COPY --from=debian /build/skewer /usr/local/bin/
 COPY --from=fastqc /build/FastQC /opt/fastqc
