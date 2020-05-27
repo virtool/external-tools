@@ -34,6 +34,13 @@ RUN wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.2/bowtie2
     mkdir bowtie2 && \
     cp bowtie2-2.3.2-legacy/bowtie2* bowtie2
 
+# FLASh
+FROM alpine:latest as flash
+WORKDIR /build
+RUN wget http://ccb.jhu.edu/software/FLASH/FLASH-1.2.11-Linux-x86_64.tar.gz && \
+    tar -xvf FLASH-1.2.11-Linux-x86_64.tar.gz && \
+    mv FLASH-1.2.11-Linux-x86_64/flash .
+
 # SPAdes
 FROM alpine:latest as spades
 WORKDIR /build
@@ -48,6 +55,7 @@ COPY --from=debian /build/hmmer /opt/hmmer
 COPY --from=debian /build/skewer /usr/local/bin/
 COPY --from=fastqc /build/FastQC /opt/fastqc
 COPY --from=bowtie /build/bowtie2/* /usr/local/bin/
+COPY --from=flash /build/flash /opt/flash
 COPY --from=spades /build/spades /opt/spades
 RUN apt-get update && \
     apt-get install -y --no-install-recommends default-jre && \
