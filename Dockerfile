@@ -1,5 +1,5 @@
 # Debian builds of HMMER and Skewer.
-FROM debian:stretch as debian
+FROM debian:buster as debian
 WORKDIR /build
 RUN apt-get update && apt-get install -y build-essential wget bioperl
 RUN wget https://bitbucket.org/wenchen_aafc/aodp_v2.0_release/raw/5fcd5d2dfde61cd87ad3c63b8c92babd281fc0dc/aodp-2.5.0.1.tar.gz && \
@@ -42,17 +42,19 @@ RUN wget https://github.com/ablab/spades/releases/download/v3.11.0/SPAdes-3.11.0
     mv SPAdes-3.11.0-Linux spades
 
 # Build
-FROM python:3.7-stretch
+FROM python:3.8-buster
 COPY --from=debian /build/aodp /usr/local/bin/
 COPY --from=debian /build/hmmer /opt/hmmer
 COPY --from=debian /build/skewer /usr/local/bin/
 COPY --from=fastqc /build/FastQC /opt/fastqc
 COPY --from=bowtie /build/bowtie2/* /usr/local/bin/
 COPY --from=spades /build/spades /opt/spades
-RUN apt-get update && apt-get install -y --no-install-recommends default-jre && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends default-jre && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
 RUN chmod ugo+x /opt/fastqc/fastqc && \
     ln -fs /opt/spades/bin/spades.py /usr/local/bin/spades.py && \
     ln -fs /opt/fastqc/fastqc /usr/local/bin/fastqc && \
     for file in `ls /opt/hmmer/bin`; do ln -fs /opt/hmmer/bin/${file} /usr/local/bin/${file};  done
 CMD ["python3"]
-
